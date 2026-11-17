@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BRD Studio — AI Prototype</title>
+<!-- Relative paths so this page works both at /prototype (Flask) and opened directly from disk. -->
+<link rel="stylesheet" href="../static/style.css">
+<link rel="stylesheet" href="../static/prototype.css">
+</head>
+<body>
+<h1 class="sr-only">BRD Creation Platform — AI-assisted prototype</h1>
+
+<!-- TOP BAR (same markup as index.html) -->
+<header class="topbar" id="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">
+      <img src="https://kpmg.com/content/dam/kpmgsites/in/images/2025/11/kpmg-logo.jpg" alt="KPMG" class="topbar-kpmg-img"/>
+    </div>
+    <span class="topbar-divider" aria-hidden="true"></span>
+    <span class="topbar-product">BRD Creation Platform</span>
+    <span class="proto-tag">AI Prototype</span>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-progress">
+      <div class="tp-bar"><div id="progress-fill" style="width:0%"></div></div>
+      <span id="progress-label" class="tp-label">Step 1 / 4</span>
+    </div>
+    <button class="btn small topbar-btn danger" id="proto-reset" title="Start the prototype again">↺ Restart</button>
+  </div>
+</header>
+
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="Workflow steps">
+    <div class="rail-header"><span class="rail-workflow-label">AI Workflow</span></div>
+    <div id="steps" class="rail-steps"></div>
+    <div class="rail-foot">
+      <div class="rail-note">Prototype for stakeholder review. All AI output is simulated; nothing is sent to a server.</div>
+    </div>
+  </nav>
+
+  <main class="main-wrap" id="main-wrap">
+    <div id="main"></div>
+  </main>
+</div>
+
+<script src="../static/prototype.js"></script>
+</body>
+</html>
