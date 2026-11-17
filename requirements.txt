@@ -1,0 +1,46 @@
+Flask==3.0.3
+python-docx==1.1.2
+scikit-learn==1.5.1
+Werkzeug==3.0.3
+mammoth==1.8.0
+openpyxl==3.1.5
+reportlab>=4.2.0
+
+# Optional - PDF export via /api/download-pdf/<file>
+# Requires Microsoft Word on Windows/Mac. On Linux, falls back to LibreOffice.
+# docx2pdf>=0.1.8
+
+# Optional - auto-generated process flow diagrams in Annexure 12.2.
+# Pure pip package, no external executables (safe for AppLocker).
+matplotlib>=3.7.0
+
+# HTTPS for mic access on remote servers.
+# Option A (recommended) — persistent self-signed cert, covers all LAN IPs:
+cryptography>=42
+# Option B — ephemeral adhoc cert via Flask (cert regenerates on every restart):
+pyOpenSSL>=24.0.0
+
+# Server-side speech-to-text (used by the mic/dictation feature)
+SpeechRecognition>=3.12.0
+
+# Audio format conversion: webm/ogg/mp3 → WAV before transcription.
+# Also needs ffmpeg on PATH:  winget install ffmpeg  OR  choco install ffmpeg
+pydub>=0.25.1
+
+# Offline speech-to-text (recommended for locked-down networks without internet)
+# Download the small English model (~50 MB) into DATA_DIR/models/vosk/:
+#   https://alphacephei.com/vosk/models  ->  vosk-model-small-en-us-0.15
+# vosk>=0.3.45
+
+# Optional - semantic RFP matching (BERT-family MiniLM). When installed,
+# rfp_parser uses sentence embeddings instead of TF-IDF in auto mode.
+# Install with:
+#   pip install sentence-transformers
+# sentence-transformers>=2.2.0
+
+# Optional - FLAN-T5 RFP matching. Enable with BRD_RFP_MATCHER=flan-t5.
+# Install with:
+#   pip install transformers torch sentencepiece
+# transformers>=4.41.0
+# torch>=2.3.0
+# sentencepiece>=0.2.0

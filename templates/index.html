@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BRD Creation Platform</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=31">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.26.0/dist/tabler-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/marked@9/marked.min.js"></script>
+<script src="{{ url_for('static', filename='recordrtc.js') }}"></script>
+</head>
+<body>
+<h1 class="sr-only">BRD Creation Platform â€” Build a Business Requirements Document step by step, then generate a Word file.</h1>
+
+<!-- TOP BAR -->
+<header class="topbar" id="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">
+      <img src="https://kpmg.com/content/dam/kpmgsites/in/images/2025/11/kpmg-logo.jpg" alt="KPMG" class="topbar-kpmg-img"/>
+    </div>
+    <span class="topbar-divider" aria-hidden="true"></span>
+    <span class="topbar-product">BRD Creation Platform</span>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-progress">
+      <div class="tp-bar"><div id="progress-fill" style="width:0%"></div></div>
+      <span id="progress-label" class="tp-label">0 / 0 Fields</span>
+    </div>
+    <label class="btn small topbar-btn ghost upload-btn" title="Upload an RFP or notes document â€” we'll pre-fill your answers automatically">
+      <i class="ti ti-upload" aria-hidden="true"></i> Upload RFP
+      <input type="file" id="rfp-input" accept=".docx,.txt,.xlsx,.xls" hidden />
+    </label>
+    <button class="btn small topbar-btn" id="sample-brd-btn" title="Preview &amp; download the in-house BRD sample document">
+      <i class="ti ti-file-text" aria-hidden="true"></i> Sample BRD
+    </button>
+    <button class="btn small topbar-btn" id="save-draft" title="Save current progress to browser storage (no sign-in needed)">
+      <i class="ti ti-device-floppy" aria-hidden="true"></i> Save Draft
+    </button>
+    <button class="btn small topbar-btn" id="open-projects" title="Open or switch between saved BRD projects">
+      <i class="ti ti-folder" aria-hidden="true"></i> Projects
+    </button>
+    <button class="btn small topbar-btn danger" id="clear-draft" title="Discard all current draft data and start fresh">
+      <i class="ti ti-trash" aria-hidden="true"></i> Clear
+    </button>
+  </div>
+</header>
+
+<!-- SHELL: left rail + main content -->
+<div class="shell">
+
+  <!-- LEFT RAIL â€” same #00338D as topbar, no visual seam -->
+  <nav class="rail" id="rail" aria-label="Workflow steps">
+    <div id="steps" class="rail-steps"></div>
+    <div class="rail-foot">
+      <div id="template-status" class="rail-tpl-status"></div>
+      <label class="rail-tpl-upload">
+        <i class="ti ti-file-upload" aria-hidden="true"></i> Upload &amp; Auto-Fill Template
+        <input type="file" id="template-input" accept=".docx,.dotx" hidden />
+      </label>
+      <button class="btn rail-generate" id="rail-generate">
+        <i class="ti ti-download" aria-hidden="true"></i> Download KPMG Template
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-wrap" id="main-wrap">
+    <div id="main"><p class="loading-msg">Loadingâ€¦</p></div>
+  </main>
+
+</div><!-- /.shell -->
+
+<!-- FLOWCHART DRAWER â€” slides in from the right (exactly one #add-custom-flow) -->
+<aside id="fc-drawer" class="fc-drawer" hidden aria-label="Flowchart editor">
+  <div class="fc-drawer-header">
+    <span class="fc-drawer-title">Flowchart Editor · Annexure 12.1</span>
+    <button class="fc-drawer-x" id="fc-drawer-close" aria-label="Close drawer">
+      <i class="ti ti-x" aria-hidden="true"></i>
+    </button>
+  </div>
+  <div class="fc-drawer-body" id="fc-drawer-body"></div>
+  <div class="fc-drawer-footer">
+    <button class="btn" id="add-custom-flow">
+      <i class="ti ti-plus" aria-hidden="true"></i> Add Flowchart
+    </button>
+    <button class="btn primary" id="fc-drawer-done">Done</button>
+  </div>
+</aside>
+
+<!-- PROJECTS MODAL -->
+<div class="modal-backdrop" id="projects-modal" hidden>
+  <div class="modal-box" style="max-width:560px;">
+    <div class="modal-head">
+      <h2>Saved Projects</h2>
+      <button class="btn small ghost" id="projects-close"><i class="ti ti-x" aria-hidden="true"></i> Close</button>
+    </div>
+    <div class="modal-body" id="projects-body">
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <input type="text" id="proj-name-inp" placeholder="Project name (optional)â€¦"
+               style="flex:1;padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;"/>
+        <button class="btn small primary" id="proj-save-new">
+          <i class="ti ti-device-floppy" aria-hidden="true"></i> Save as Project
+        </button>
+      </div>
+      <div id="proj-list"><p style="color:var(--ink-soft);font-size:13px;">Loadingâ€¦</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- SAMPLE BRD MODAL -->
+<div class="modal-backdrop" id="sample-brd-modal" hidden>
+  <div class="modal-box" style="width:min(1100px,96vw);height:92vh;display:flex;flex-direction:column;">
+    <div class="modal-head">
+      <h2>In-House BRD Sample</h2>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn small" id="sample-brd-newtab" style="color:rgba(255,255,255,.9)!important;border-color:rgba(255,255,255,.2)!important;background:rgba(255,255,255,.08)!important;">
+          <i class="ti ti-external-link" aria-hidden="true"></i> Open in New Tab
+        </button>
+        <a class="btn small" id="sample-brd-download" href="/api/sample-brd/download" download
+           style="color:rgba(255,255,255,.9)!important;border-color:rgba(255,255,255,.2)!important;background:rgba(255,255,255,.08)!important;">
+          <i class="ti ti-download" aria-hidden="true"></i> Download .docx
+        </a>
+        <button class="btn small ghost" id="sample-brd-close"><i class="ti ti-x" aria-hidden="true"></i> Close</button>
+      </div>
+    </div>
+    <div class="modal-body" id="sample-brd-body" style="flex:1;padding:0;overflow:hidden;">
+      <div id="sample-brd-loading" style="display:flex;align-items:center;justify-content:center;height:100%;gap:12px;font-size:14px;color:var(--ink-soft);">
+        <i class="ti ti-loader" aria-hidden="true" style="font-size:22px;animation:spin 1s linear infinite;"></i> Loading sampleâ€¦
+      </div>
+      <iframe id="sample-brd-frame" src="" style="width:100%;height:100%;border:none;display:none;" title="BRD Sample Preview"></iframe>
+      <div id="sample-brd-fallback" style="display:none;height:100%;overflow:auto;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TEMPLATE EXPLAINER MODAL -->
+<div class="modal-backdrop" id="tpl-explainer-modal" hidden>
+  <div class="modal-box" style="max-width:480px;">
+    <div class="modal-head">
+      <h2>Auto-Fill Your BRD Template</h2>
+      <button class="btn small ghost" id="tpl-explainer-cancel"><i class="ti ti-x" aria-hidden="true"></i> Close</button>
+    </div>
+    <div class="modal-body" style="padding:24px 28px;">
+      <p style="font-size:14px;line-height:1.65;margin-bottom:18px;">
+        Upload your own <strong>.docx</strong> or <strong>.dotx</strong> template. We'll fill only the sections that match the questions in this platform. Sections in your template we can't match will be marked <span style="background:#FFF5E0;color:#7A4100;padding:1px 6px;border-radius:4px;font-size:11px;font-weight:700;">VERIFY</span> for you to complete, or left empty.
+      </p>
+      <p style="font-size:13px;color:var(--ink-soft);margin-bottom:20px;">Only sections that match this platform's questions are filled. Anything else is marked VERIFY or left blank.</p>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin-bottom:22px;">
+        <input type="checkbox" id="tpl-explainer-noshowin" style="accent-color:var(--kpmg-teal);"/> Don't show again this session
+      </label>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button class="btn ghost" id="tpl-explainer-cancel2">Cancel</button>
+        <label class="btn primary" id="tpl-explainer-choose">
+          <i class="ti ti-file-upload" aria-hidden="true"></i> Choose Template
+          <input type="file" id="template-input-explainer" accept=".docx,.dotx" hidden />
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DOCUMENT PREVIEW MODAL -->
+<div class="modal-backdrop" id="preview-modal" hidden>
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Document Preview</h2>
+      <button class="btn small ghost" id="preview-close"><i class="ti ti-x" aria-hidden="true"></i> Close</button>
+    </div>
+    <div class="modal-body" id="preview-body"><p>Loading previewâ€¦</p></div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='app.js') }}?v=36"></script>
+</body>
+</html>

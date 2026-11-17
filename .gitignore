@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.pyo
+outputs/
+uploads/
+projects/
+*.db
+*.sqlite3
+.env
+defaults.json
